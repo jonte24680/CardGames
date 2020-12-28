@@ -1,6 +1,19 @@
 {
+  "name": "sockettest",
+  "version": "1.0.0",
+  "description": "Testing Socket.io for futer purbpus",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "author": "Jonathan Gustafsson",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^3.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
   }
 }
