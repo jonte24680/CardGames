@@ -1,0 +1,11 @@
+.P-card{
+    width: 40%;
+    max-height:50%
+}
+
+#card0{
+    margin-left: 9%;
+}
+#card1{
+    margin-right: 9%;
+}
