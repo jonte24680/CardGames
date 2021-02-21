@@ -24,7 +24,20 @@ io.on("connection", socket => {
     socket.on("new-room", roomid => {
         var room;
         if (roomid == "" || roomid == null || rooms.find( arr => arr == roomid) != undefined){
-            room = Math.floor(Math.random() * 1000000) + 1
+            room = Math.floor(Math.random() * 1000000aw) + 1
+        } else {
+            room = Math.floor(roomid);
+        }
+        socket.join(room);
+        rooms.push({room: room, hostid: socket.id});
+        socket.emit("players-update", {room: room, users: getRoomUsers(room)});
+        console.log(`New card room created white id ${room}`)
+    });
+
+    /*socket.on("new-room", roomid => {
+        var room;
+        if (roomid == "" || roomid == null || rooms.find( arr => arr == roomid) != undefined){
+            room = Math.floor(Math.random() * 1000000aw) + 1
         } else {
             room = Math.floor(roomid);
         }
@@ -41,9 +54,11 @@ io.on("connection", socket => {
         console.log(`player ${user.username} (id: ${user.id}) has enterd room ${user.room}`)
     });
     
-    socket.emit("message", "Welcome to chatCord!")
+    socket.emit("message", "Welcome to chatCord!") */
 
 });
+
+//io.emit("game-update", ({}));
 
 var PORT = 8080;
 
