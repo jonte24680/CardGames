@@ -24,7 +24,7 @@ io.on("connection", socket => {
     socket.on("new-room", roomid => {
         var room;
         if (roomid == "" || roomid == null || rooms.find( arr => arr == roomid) != undefined){
-            room = Math.floor(Math.random() * 1000000aw) + 1
+            room = Math.floor(Math.random() * 1000000) + 1
         } else {
             room = Math.floor(roomid);
         }
