@@ -1,0 +1,18 @@
+.player{
+    margin: 5px;
+    display: inline;
+    width: 30ch;
+    position: relative;
+    background-color:rgb(114, 114, 114);
+}
+
+.player-card-images{
+    display: block;
+    margin: 0;
+    width: 20ch;
+}
+
+.player-cards{
+    margin: 0;
+    width: 9ch;
+}

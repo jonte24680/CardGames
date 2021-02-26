@@ -1,6 +1,8 @@
 var socket = io();
 
-const roomid = prompt("Custume id", 10)
+const roomid = +prompt("Custume id", 10)
+if (roomid == NaN)
+  roomid = 0
 
 socket.emit("new-room", roomid);
 

@@ -1,0 +1,26 @@
+.content{
+    display: block;
+    position: fixed;
+    background-color: lightblue;
+    padding: 0;
+}
+
+.title-container{
+    padding: 5px;
+}
+
+.title{
+    margin: 0;
+}
+
+.login-container{
+    padding: 5px;
+}
+
+.text-label{
+    display: block;
+}
+
+.text-input{
+    display: block;
+}
