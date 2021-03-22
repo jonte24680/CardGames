@@ -1,22 +1,12 @@
+"use strict";
 var socket = io();
-
-const roomid = +prompt("Custume id", 10)
-if (roomid == NaN)
-  roomid = 0
-
+var roomid = Number(prompt("Custume id", "10"));
 socket.emit("new-room", roomid);
-
-socket.on("room-info", (roomid) => {
-
-});
-
-socket.on("players-update", ({room, users}) => {
+socket.on("players-update", (room) => {
     console.log(room);
-    console.log(users);
 });
-
-console.log("host")
-
+console.log("host");
+/*
 function KeyPress(e) {
     var evtobj = window.event? event : e
     if (evtobj.keyCode == 90 && evtobj.ctrlKey) alert("Ctrl+z");
@@ -29,4 +19,5 @@ document.addEventListener("keydown", event => {
       return;
     }
     // do something
-  });
+  });*/ 
+//# sourceMappingURL=host.js.map

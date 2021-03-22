@@ -42,6 +42,7 @@ function CreateRoom(roomID: number, hostID: string): Room {
     }
 
     rooms.push(new Room(RID, hostID));
+    rooms[rooms.length - 1].allPlayers = [];
     return rooms[rooms.length - 1]
 }
 
@@ -75,41 +76,4 @@ module.exports = {
     JoinRoom,
     GetIndexRoomID,
     GetRoom
-}
-
-class Room {
-    roomID: number;
-    public: boolean;
-    gameInfo: GameInfo = new GameInfo();
-    allPlayers: Player[] = [];
-    cardDeck: string[] = [];
-    hostID: string;
-
-    constructor(roomID: number, HostID: string){
-        this.roomID = roomID;
-        this.hostID = HostID;
-        this.public = false;
-    }
-}
-
-class GameInfo {
-    type: String = "";
-    currentPlayers: Player[] = []; 
-
-    constructor(){};
-
-}
-
-class Player {
-    username: string;
-    id: string;
-    money: number = 10000;
-    bet: number = 0;
-    totalBet: number = 0;
-    cards: string[] = [];
-
-    constructor(username: string, id: string){
-        this.username = username;
-        this.id = id;
-    }
 }

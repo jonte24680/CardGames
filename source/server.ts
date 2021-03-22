@@ -1,22 +1,25 @@
+//
+// Dependensy
 import path from "path";
 import http from "http";
 import express from "express";
-const socketio = require("socket.io");
-
+import socketIO from "socket.io";
 const Data = require("./utils/data");
-const { argv } = require("process");
+
+//
+// Create Server
 
 const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
-
-// Set static floor
 app.use(express.static(path.join(__dirname, "Client")));
+const server = http.createServer(app);
+const io: socketIO.Server = require("socket.io")(server);
 
+//
 // Run when a client connect
 
-io.on("connection", (socket:any) => {
+io.on("connection", (socket: socketIO.Socket) => {
 
+    //Host
     socket.on("new-room", (roomid:number) => {
         const room = Data.CreateRoom(roomid, socket.id)
 
@@ -25,29 +28,32 @@ io.on("connection", (socket:any) => {
         console.log(`New card room created white id: ${room.roomID}`)
     });
 
-    socket.on("join-room", ({username , roomID}:any) => {
+    //Player
+    socket.on("join-room", (joinData: JoiningRoom) => {
 
-        const room = Data.JoinRoom(socket.id ,username, roomID);
+        const room = Data.JoinRoom(joinData.roomID ,joinData.username, socket.id);
         if( room == null)
         {
             io.emit("players-update", room);
-        } else 
-        {
+        } else {
             socket.join(room.roomID);
-            io.emit("players-update", room);
-            console.log(`player ${username} (id: ${socket.id}) has enterd room ${room}`)
+            io.to(room.roomID).emit("players-update", room);
+            console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room}`)
         }
     });
-    
-    socket.emit("message", "Welcome to chatCord!") 
 
 });
 
 //io.emit("game-update", ({}));
+
+//
+// Port 
+
+const { argv } = require("process");
 
 var PORT:number = 8080;
 
 if(process.argv.length > 2)
     PORT = +process.argv[2];
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}. localhost:${PORT}`));

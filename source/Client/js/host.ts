@@ -1,20 +1,16 @@
-var socket = io();
+var socket:SocketIOClient.Socket = io();
 
-const roomid = prompt("Custume id", 10)
+var roomid = Number(prompt("Custume id", "10"))
 
 socket.emit("new-room", roomid);
 
-socket.on("room-info", (roomid) => {
-
-});
-
-socket.on("players-update", ({room, users}) => {
+socket.on("players-update", (room: Room) => {
     console.log(room);
-    console.log(users);
 });
 
 console.log("host")
 
+/*
 function KeyPress(e) {
     var evtobj = window.event? event : e
     if (evtobj.keyCode == 90 && evtobj.ctrlKey) alert("Ctrl+z");
@@ -27,4 +23,4 @@ document.addEventListener("keydown", event => {
       return;
     }
     // do something
-  });
+  });*/

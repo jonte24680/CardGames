@@ -39,6 +39,7 @@ function CreateRoom(roomID, hostID) {
         RID = Math.floor(Math.random() * 1000000) + 1;
     }
     rooms.push(new Room(RID, hostID));
+    rooms[rooms.length - 1].allPlayers = [];
     return rooms[rooms.length - 1];
 }
 function JoinRoom(roomID, username, id) {
@@ -67,30 +68,4 @@ module.exports = {
     GetIndexRoomID,
     GetRoom
 };
-class Room {
-    constructor(roomID, HostID) {
-        this.gameInfo = new GameInfo();
-        this.allPlayers = [];
-        this.cardDeck = [];
-        this.roomID = roomID;
-        this.hostID = HostID;
-        this.public = false;
-    }
-}
-class GameInfo {
-    constructor() {
-        this.type = "";
-        this.currentPlayers = [];
-    }
-    ;
-}
-class Player {
-    constructor(username, id) {
-        this.money = 10000;
-        this.bet = 0;
-        this.totalBet = 0;
-        this.cards = [];
-        this.username = username;
-        this.id = id;
-    }
-}
+//# sourceMappingURL=data.js.map

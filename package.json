@@ -5,12 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "nodemon source/server.ts.",
-    "build": "tcs"
+    "dev": "nodemon dist/server.js",
+    "build": "tsc"
   },
   "author": "Jonathan Gustafsson",
   "license": "MIT",
   "dependencies": {
+    "@types/socket.io-client": "^1.4.36",
     "express": "^4.17.1",
     "socket.io": "^3.0.4"
   },
