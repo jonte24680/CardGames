@@ -1,4 +1,4 @@
-class Room {
+export class Room {
     roomID: number;
     public: boolean;
     gameInfo: GameInfo = new GameInfo();
@@ -13,7 +13,7 @@ class Room {
     }
 }
 
-class GameInfo {
+export class GameInfo {
     type: String = "";
     currentPlayers: Player[] = []; 
 
@@ -21,7 +21,7 @@ class GameInfo {
 
 }
 
-class Player {
+export class Player {
     username: string;
     id: string;
     money: number = 10000;
@@ -35,13 +35,17 @@ class Player {
     }
 }
 
-class JoiningRoom {
+export class JoiningRoom {
 
     username: string | null;
-    roomID: number | null;
+    roomID: number;
 
-    constructor(username: string | null, roomID: number | null){
+    constructor(username: string | null, roomID: number){
         this.username = username;
         this.roomID = roomID;
     }
 }
+
+/*if(module != undefined){
+    module.exports = {Room, GameInfo, Player, JoiningRoom};
+}*/

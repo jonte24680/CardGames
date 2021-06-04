@@ -6,14 +6,19 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon dist/server.js",
-    "build": "tsc"
+    "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json",
+    "build and run": "npm run build && node dist/server.js",
+    "build-server": "tsc -p tsconfig.server.json",
+    "build-client": "tsc -p tsconfig.server.json"
   },
   "author": "Jonathan Gustafsson",
   "license": "MIT",
   "dependencies": {
     "@types/socket.io-client": "^1.4.36",
+    "@types/systemjs": "^6.1.0",
     "express": "^4.17.1",
-    "socket.io": "^3.0.4"
+    "socket.io": "^3.0.4",
+    "systemjs": "^6.8.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.11",

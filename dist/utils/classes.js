@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JoiningRoom = exports.Player = exports.GameInfo = exports.Room = void 0;
 class Room {
     constructor(roomID, HostID) {
         this.gameInfo = new GameInfo();
@@ -9,6 +11,7 @@ class Room {
         this.public = false;
     }
 }
+exports.Room = Room;
 class GameInfo {
     constructor() {
         this.type = "";
@@ -16,6 +19,7 @@ class GameInfo {
     }
     ;
 }
+exports.GameInfo = GameInfo;
 class Player {
     constructor(username, id) {
         this.money = 10000;
@@ -26,10 +30,15 @@ class Player {
         this.id = id;
     }
 }
+exports.Player = Player;
 class JoiningRoom {
     constructor(username, roomID) {
         this.username = username;
         this.roomID = roomID;
     }
 }
+exports.JoiningRoom = JoiningRoom;
+/*if(module != undefined){
+    module.exports = {Room, GameInfo, Player, JoiningRoom};
+}*/ 
 //# sourceMappingURL=classes.js.map

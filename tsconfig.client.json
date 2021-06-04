@@ -1,0 +1,8 @@
+{
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"module": "none"
+	},
+	//"include": [ "./source/client/js/host.ts", "./source/client/js/player.ts" ],
+	"exclude": [ "./source/server.ts", "./source/utils/classes.ts", "./source/utils/data.ts"]
+}

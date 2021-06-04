@@ -2,7 +2,7 @@
 var socket = io();
 const card0 = document.getElementById("card0");
 const card1 = document.getElementById("card1");
-var joinData = new JoiningRoom(getParameterByName("username"), Number(getParameterByName("room")));
+var joinData = { username: getParameterByName("username"), roomID: Number(getParameterByName("room")) };
 const room = getParameterByName("room");
 socket.emit("join-room", joinData);
 console.log("hej");

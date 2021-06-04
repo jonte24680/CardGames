@@ -1,10 +1,11 @@
 var socket:SocketIOClient.Socket = io();
 
+
 var roomid = Number(prompt("Custume id", "10"))
 
 socket.emit("new-room", roomid);
 
-socket.on("players-update", (room: Room) => {
+socket.on("players-update", (room: any) => {
     console.log(room);
 });
 

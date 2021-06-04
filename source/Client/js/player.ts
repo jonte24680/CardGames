@@ -3,7 +3,8 @@ var socket = io();
 const card0 = document.getElementById("card0");
 const card1 = document.getElementById("card1");
 
-var joinData: JoiningRoom = new JoiningRoom(getParameterByName("username"), Number(getParameterByName("room")))
+
+var joinData = {username: getParameterByName("username"), roomID: Number(getParameterByName("room"))}
 
 const room = getParameterByName("room")
 
