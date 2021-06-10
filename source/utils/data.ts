@@ -1,29 +1,23 @@
-//const GlobalClasses = require("../Client/js/classes");
-
+import socketIO, { Socket } from "socket.io";
 import {Room, Player, GameInfo, JoiningRoom} from "./classes";
 
 var rooms: Room[] = [];
 
-export function CreateRoom(roomID: number, hostID: string): Room {
+export function CreateRoom(roomID: number, hostID: string, io: socketIO.Server): Room {
     var RID: number = roomID;
-    
-    /*if (rooms == undefined) {
-        rooms.push(new Room(RID, hostID));
-        return rooms[rooms.length - 1]
-    }*/
 
     while (RID == 0 || rooms.find(arr => arr.roomID == RID) != undefined) {
         RID = Math.floor(Math.random() * 1000000) + 1
     }
 
-    var newRoom = new Room(RID, hostID)
+    var newRoom = new Room(RID, hostID, io)
 
     rooms.push(newRoom);
     rooms[rooms.length - 1].allPlayers = [];
     return rooms[rooms.length - 1]
 }
 
-export function JoinRoom(roomID: number, username: string | null, id: string): Room | null {
+export function JoinRoom(roomID: number, username: string | null, id: string): Room | null{
     var i: number = GetIndexRoomID(roomID);
     if (i == NaN || username == null || username == "")
         return null;
