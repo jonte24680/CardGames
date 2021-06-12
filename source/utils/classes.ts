@@ -1,5 +1,3 @@
-import socketIO, { Socket } from "socket.io";
-
 export class Room {
     roomID: number;
     public: boolean;
@@ -7,13 +5,11 @@ export class Room {
     allPlayers: Player[] = [];
     cardDeck: string[] = [];
     hostID: string;
-    io: socketIO.Server;
 
-    constructor(roomID: number, HostID: string, io: socketIO.Server){
+    constructor(roomID: number, HostID: string){
         this.roomID = roomID;
         this.hostID = HostID;
         this.public = false;
-        this.io = io;
     }
 }
 

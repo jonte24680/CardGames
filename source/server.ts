@@ -1,11 +1,15 @@
+//
+// Dependensy
 import path from "path";
 import http from "http";
 import express from "express";
 import socketIO from "socket.io";
-import {Room, Player, GameInfo, JoiningRoom} from "./utils/classes";
 
+//const Data = require("./utils/data");
 import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom} from "./utils/data";
-
+//import Data from "./utils/data"
+//const nåt = require(./Client/js/classes);
+import {Room, Player, GameInfo, JoiningRoom} from "./utils/classes";
 
 //
 // Create Server
@@ -22,7 +26,7 @@ io.on("connection", (socket: socketIO.Socket) => {
 
     //Host
     socket.on("new-room", (roomid:number) => {
-        const room = CreateRoom(roomid, socket.id, io)
+        const room = CreateRoom(roomid, socket.id)
 
         socket.join(room.roomID.toString());
         socket.emit("players-update", room);
@@ -58,11 +62,3 @@ if(process.argv.length > 2)
     PORT = +process.argv[2];
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}. http://localhost:${PORT}`));
-
-/* Depricated
-
-//data
-//const Data = require("./utils/data");
-//import Data from "./utils/data"
-
-*/
