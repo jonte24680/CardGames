@@ -11,6 +11,22 @@ export class Room {
         this.hostID = HostID;
         this.public = false;
     }
+
+    public PlayerData(playerID:string): Room {
+        var roomData = this;
+        //roomData.allPlayers.forEach(element => {
+        //    if(playerID != element.id){
+        //        element.cards = ["??", "??"]
+        //    }
+        //});
+        roomData.gameInfo.currentPlayers.forEach(element => {
+            if(playerID != element.id){
+                element.cards = ["??", "??"];
+            }
+        });
+
+        return roomData;
+    }
 }
 
 export class GameInfo {

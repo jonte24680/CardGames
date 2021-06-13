@@ -29,7 +29,8 @@ io.on("connection", (socket: socketIO.Socket) => {
         const room = CreateRoom(roomid, socket.id)
 
         socket.join(room.roomID.toString());
-        socket.emit("players-update", room);
+        //socket.emit("players-update", room);
+        UpdateClients(room);
         console.log(`New card room created white id: ${room.roomID}`)
     });
 
@@ -39,15 +40,27 @@ io.on("connection", (socket: socketIO.Socket) => {
         const room = JoinRoom(joinData.roomID ,joinData.username, socket.id);
         if( room == null)
         {
-            io.emit("players-update", room);
+            io.emit("players-update", {error: 404});
         } else {
             socket.join(room.roomID.toString());
-            io.to(room.roomID.toString()).emit("players-update", room);
-            console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room}`)
+            //io.to(room.roomID.toString()).emit("players-update", room);
+            UpdateClients(room);
+            console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room.roomID}`)
         }
     });
 
 });
+
+function UpdateClients(room: Room){
+    io.to(room.hostID).emit("players-update", room)
+    room.allPlayers.forEach(player => {
+        io.to(player.id).emit("players-update", room.PlayerData(player.id))
+    });
+}
+
+function SendUpdateToClient(room: Room, playerIndex: number){
+    room
+}
 
 //io.emit("game-update", ({}));
 
@@ -62,3 +75,4 @@ if(process.argv.length > 2)
     PORT = +process.argv[2];
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}. http://localhost:${PORT}`));
+

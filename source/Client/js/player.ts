@@ -10,6 +10,10 @@ const room = getParameterByName("room")
 
 socket.emit("join-room", joinData);
 
+socket.on("players-update", (room: any) => {
+    console.log(room);
+});
+
 
 console.log("hej")
 
@@ -23,7 +27,8 @@ if (raiseElement != null){
     })
 }
 
-
+//
+//Get query
 function getParameterByName(name:string, url:string = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
     var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
