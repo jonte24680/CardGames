@@ -1,3 +1,19 @@
+const CARDDECK: string[] = MakeCardDeck();
+
+function MakeCardDeck(){
+    var cardDeck: string[] = [];
+    var cardNumber: string[] = ["A", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    var cardColor: string[] = ["C", "D", "H", "S"];
+
+    cardNumber.forEach(number => {
+        cardColor.forEach(color => {
+            CARDDECK.push(number + color);
+        });
+    });
+
+    return cardDeck;
+}
+
 export class Room {
     roomID: number;
     public: boolean;
@@ -10,6 +26,34 @@ export class Room {
         this.roomID = roomID;
         this.hostID = HostID;
         this.public = false;
+    }
+
+
+    /**
+    * 
+    * @param xCardDeck how many card deck what is going to be in the card deck (Default: 1)
+    * @param JokersIncluded if joker is going to be inculdet in the card deck (Default: false)
+    */
+    public NewCardDeck(xCardDeck: number = 1, JokersIncluded: boolean = false){
+        var cards: string[] = []
+
+        for(var i = 0; i > xCardDeck; i++){
+            cards.concat(CARDDECK);
+        }
+
+        for(var i = 0; i > 6; i++){
+            var j = cards.length;
+            var r, temp;
+    
+            while(--j > 0){
+                r = Math.floor(Math.random());
+                temp = cards[r];
+                cards[r] = cards[j];
+                cards[j] = temp;
+            }
+        }
+
+        this.cardDeck = cards;
     }
 
     public PlayerData(playerID:string): Room {

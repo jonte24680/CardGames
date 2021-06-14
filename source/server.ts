@@ -58,10 +58,6 @@ function UpdateClients(room: Room){
     });
 }
 
-function SendUpdateToClient(room: Room, playerIndex: number){
-    room
-}
-
 //io.emit("game-update", ({}));
 
 //
