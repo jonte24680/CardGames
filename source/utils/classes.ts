@@ -7,7 +7,7 @@ function CardDeck(){
 
     cardNumber.forEach(number => {
         cardColor.forEach(color => {
-            CARDDECK.push(number + color);
+            cardDeck.push(number + color);
         });
     });
 
