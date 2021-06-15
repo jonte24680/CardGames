@@ -1,6 +1,6 @@
-const CARDDECK: string[] = MakeCardDeck();
+const CARDDECK: string[] = CardDeck();
 
-function MakeCardDeck(){
+function CardDeck(){
     var cardDeck: string[] = [];
     var cardNumber: string[] = ["A", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
     var cardColor: string[] = ["C", "D", "H", "S"];
@@ -28,7 +28,6 @@ export class Room {
         this.public = false;
     }
 
-
     /**
     * 
     * @param xCardDeck how many card deck what is going to be in the card deck (Default: 1)
@@ -38,7 +37,7 @@ export class Room {
         var cards: string[] = []
 
         for(var i = 0; i > xCardDeck; i++){
-            cards.concat(CARDDECK);
+            cards.concat(CardDeck());
         }
 
         for(var i = 0; i > 6; i++){

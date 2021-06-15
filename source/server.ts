@@ -23,13 +23,15 @@ const io: socketIO.Server = require("socket.io")(server);
 // Run when a client connect
 
 io.on("connection", (socket: socketIO.Socket) => {
-
+    var ROOMID: number;
+    
     //Host
     socket.on("new-room", (roomid:number) => {
         const room = CreateRoom(roomid, socket.id)
 
         socket.join(room.roomID.toString());
-        //socket.emit("players-update", room);
+        ROOMID = room.roomID;
+        
         UpdateClients(room);
         console.log(`New card room created white id: ${room.roomID}`)
     });
@@ -43,7 +45,8 @@ io.on("connection", (socket: socketIO.Socket) => {
             io.emit("players-update", {error: 404});
         } else {
             socket.join(room.roomID.toString());
-            //io.to(room.roomID.toString()).emit("players-update", room);
+            ROOMID = room.roomID;
+            
             UpdateClients(room);
             console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room.roomID}`)
         }
