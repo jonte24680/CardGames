@@ -1,7 +1,17 @@
 {
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
-		"module": "none"
+		"module": "none",
+
+		/* Strict Type-Checking Options */
+		"strict": true,                                 /* Enable all strict type-checking options. */
+		// "noImplicitAny": true,                       /* Raise error on expressions and declarations with an implied 'any' type. */
+		"strictNullChecks": false,                    /* Enable strict null checks. */
+		// "strictFunctionTypes": true,                 /* Enable strict checking of function types. */
+		// "strictBindCallApply": true,                 /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
+		// "strictPropertyInitialization": true,        /* Enable strict checking of property initialization in classes. */
+		// "noImplicitThis": true,                      /* Raise error on 'this' expressions with an implied 'any' type. */
+		// "alwaysStrict": true, 
 	},
 	//"include": [ "./source/client/js/host.ts", "./source/client/js/player.ts" ],
 	"exclude": [ "./source/server.ts", "./source/utils/classes.ts", "./source/utils/data.ts"]
