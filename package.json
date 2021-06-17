@@ -9,7 +9,7 @@
     "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json",
     "build and run": "npm run build && node dist/server.js",
     "build-server": "tsc -p tsconfig.server.json",
-    "build-client": "tsc -p tsconfig.server.json"
+    "build-client": "tsc -p tsconfig.client.json"
   },
   "author": "Jonathan Gustafsson",
   "license": "MIT",
