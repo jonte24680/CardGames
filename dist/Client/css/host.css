@@ -1,18 +1,59 @@
+.info-bar{
+    background-color: lightgray;
+}
+
+.info-titel{
+    display: inline-block;
+    margin: 0.25rem 0 0.25rem 0.25rem;
+}
+
+.info-roomID{
+    display: inline-block;
+    margin: 0.25rem 0 0.25rem 2rem;
+}
+
+#players{
+    background-color: aqua;
+    display: block;
+}
+
 .player{
-    margin: 5px;
-    display: inline;
-    width: 30ch;
-    position: relative;
-    background-color:rgb(114, 114, 114);
+    margin: 0.75rem;
+    padding: 0.5rem;
+    display: inline-block;
+   /* width: 30ch;*/
+    position: static;
+    background-color:hsl(0, 0%, 73%);
+
+    border: black 5px solid;
+    border-radius: 5px;
+    
+}
+
+.player-name{
+    display: block;
+    margin: 0 0 0.25rem 0;
+}
+
+.player-money{
+    display: block;
+    margin: 0 0 0.25rem 0;
+}
+
+.player-bet{
+    display: block;
+    margin: 0 0 0.25rem 0;
 }
 
 .player-card-images{
     display: block;
     margin: 0;
-    width: 20ch;
+    width: 13rem;
 }
 
 .player-cards{
+    display: inline-block;
     margin: 0;
-    width: 9ch;
+    width: 50%;
+    /*width: 7rem;*/
 }
