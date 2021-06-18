@@ -25,7 +25,7 @@ export function CreateRoom(roomID: number, hostID: string): Room {
 
 export function JoinRoom(roomID: number, username: string | null, id: string): Room | null {
     var i: number = GetIndexRoomID(roomID);
-    if (i == NaN || username == null || username == "")
+    if (Number.isNaN(i) || username == null || username == "")
         return null;
 
     rooms[i].allPlayers.push(new Player(username, id));
