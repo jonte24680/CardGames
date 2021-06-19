@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <head>
     <link rel="stylesheet" href="css/player.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+    <div class="info-bar">
+        <!--<h1 class="info-text">CardGame Client</h1> 
+        <h2 class="info-text" id="info-roomID">RoomID: 000000</h2>-->
+        <h2 class="info-text" id="username">joe</h2>
+    </div>
     <div id="cards">
         <img src="assets/images/Cards/blue_back.png" alt="" id="card0" class="P-card">
         <img src="assets/images/Cards/10C.png" alt="" id="card1" class="P-card">
     </div>
     <div id="bet">
-        <input type="button" value="Fold" id="Fold">
-        <input type="button" value="Check" id="Check">
-        <input type="range" id="raise" name="raise" 
-               min="0" max="10000" value="0" step="50">
-        <label for="raise" id="value-raise">0</label>
-        <input type="button" value="Raise" id="RaiseButton">
+        <input type="button" value="Fold" id="fold">
+        <input type="button" value="Check" id="check">
+        <p id="money">Money: 10000</p>
+        <div id="raise">
+            <input type="range" id="raise-input" name="raise" 
+                   min="0" max="10000" value="0" step="50">
+            <label for="raise" id="raise-value">0</label>
+        </div>
+        <input type="button" value="Raise" id="raise-button">
+        <input type="button" value="Decrease Bet" id="raise-stepDown">
+        <input type="button" value="Increase Bet" id="raise-stepUp">
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js" 
           integrity="sha512-BHtomM5XDcUy7tDNcrcX1Eh0RogdWiMdXl3wJcKB3PFekXb3l5aDzymaTher61u6vEZySnoC/SAj2Y/p918Y3w==" 
