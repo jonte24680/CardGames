@@ -2,7 +2,7 @@ const CARDDECK: string[] = CardDeck();
 
 function CardDeck(){
     var cardDeck: string[] = [];
-    var cardNumber: string[] = ["A", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    var cardNumber: string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
     var cardColor: string[] = ["C", "D", "H", "S"];
 
     cardNumber.forEach(number => {
