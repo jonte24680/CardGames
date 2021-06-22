@@ -81,7 +81,7 @@ export class Room {
 }
 
 export class GameInfo {
-    gameName: gameName = gameName.NoGameActiv;
+    gameName: GameName = GameName.NoGameActiv;
     turnPlayerId: string = "";
     moves: Moves = new Moves();
     cards: Card[] = [];
@@ -90,7 +90,7 @@ export class GameInfo {
 
 }
 
-export enum gameName{
+export enum GameName{
     NoGameActiv = "NoGameActive",
     PokerTexas = "PokerTexas",
 }
