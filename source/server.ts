@@ -56,7 +56,7 @@ io.on("connection", (socket: socketIO.Socket) => {
 
 function UpdateClients(room: Room){
     io.to(room.hostID).emit("players-update", room)
-    room.allPlayers.forEach(player => {
+    room.players.forEach(player => {
         io.to(player.id).emit("players-update", room.PlayerData(player.id))
     });
 }

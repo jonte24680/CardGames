@@ -19,7 +19,7 @@ export function CreateRoom(roomID: number, hostID: string): Room {
     var newRoom = new Room(RID, hostID)
 
     rooms.push(newRoom);
-    rooms[rooms.length - 1].allPlayers = [];
+    rooms[rooms.length - 1].players = [];
     return rooms[rooms.length - 1]
 }
 
@@ -28,7 +28,7 @@ export function JoinRoom(roomID: number, username: string | null, id: string): R
     if (Number.isNaN(i) || username == null || username == "")
         return null;
 
-    rooms[i].allPlayers.push(new Player(username, id));
+    rooms[i].players.push(new Player(username, id));
     return rooms[i];
     
 }

@@ -18,7 +18,7 @@ export class Room {
     roomID: number;
     public: boolean;
     gameInfo: GameInfo = new GameInfo();
-    allPlayers: Player[] = [];
+    players: Player[] = [];
     cardDeck: string[] = [];
     hostID: string;
 
@@ -42,7 +42,7 @@ export class Room {
 
         for(var i = 0; i > 6; i++){
             var j = cards.length;
-            var r, temp;
+            var r : number, temp;
     
             while(--j > 0){
                 r = Math.floor(Math.random());
@@ -62,9 +62,17 @@ export class Room {
         //        element.cards = ["??", "??"]
         //    }
         //});
-        roomData.gameInfo.currentPlayers.forEach(element => {
-            if(playerID != element.id){
-                element.cards = ["??", "??"];
+        roomData.players.forEach(player => {
+            if(playerID != player.id){
+                player.gameStat.cards.forEach(cards => {
+                    if (cards.publicSee == false)
+                        cards.MakeHidden();
+                });
+            } else {
+                player.gameStat.cards.forEach(cards => {
+                    if (cards.playerSee == false)
+                        cards.MakeHidden();
+                });
             }
         });
 
@@ -73,24 +81,63 @@ export class Room {
 }
 
 export class GameInfo {
-    type: String = "";
-    currentPlayers: Player[] = []; 
+    gameName: gameName = gameName.NoGameActiv;
+    turnPlayerId: string = "";
+    moves: Moves = new Moves();
+    cards: Card[] = [];
 
     constructor(){};
 
 }
 
+export enum gameName{
+    NoGameActiv = "NoGameActive",
+    PokerTexas = "PokerTexas",
+}
+export class Moves {
+    fold: boolean = false;
+    check: boolean = false;
+    rasie: boolean = false;
+
+    constructor(){};
+}
+
 export class Player {
     username: string;
     id: string;
+    inGame: boolean = false;
     money: number = 10000;
-    bet: number = 0;
-    totalBet: number = 0;
-    cards: string[] = [];
+    gameStat: GameStat = new GameStat();
 
     constructor(username: string, id: string){
         this.username = username;
         this.id = id;
+    }
+}
+
+export class GameStat {
+    bet: number = 0;
+    totalBet: number = 0;
+    cards: Card[] = [];
+
+    constructor(){};
+}
+
+export class Card{
+    cards: string[] = [];
+    publicSee: boolean = false;
+    playerSee: boolean = true;
+    name: string = "";
+
+    constructor(name: string, cards: string[] = [], publicSee: boolean = false, playerSee: boolean = true){
+        this.name = name;
+        this.cards = cards;
+        this.publicSee = publicSee;
+        this.playerSee = playerSee;
+    };
+
+    public MakeHidden(){
+        this.cards.fill("??");
     }
 }
 

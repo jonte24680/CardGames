@@ -63,7 +63,7 @@ function UpdateGui(){
 }
 
 function GetPlayer(){
-    var player = room.allPlayers.find(p => p.id == socket.id);
+    var player = room.players.find(p => p.id == socket.id);
     if(player)
         return player;
     return null;

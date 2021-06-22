@@ -16,11 +16,11 @@ socket.on("players-update", (room: any) => {
     ChangeRoomID(room.roomID)
 
     playersElement.innerHTML = ""
-    room.allPlayers.forEach((player) => {
+    room.players.forEach((player) => {
         playersElement.innerHTML += `        <div class="player">
         <p class="player-name">${player.username}</p>
         <p class="player-money">Money: ${player.money} $</p>
-        <p class="player-bet">Bet: ${player.bet} $</p>
+        <p class="player-bet">Bet: ${player.gameStat.bet} $</p>
         <div class="player-card-images">
             <img src="assets/images/Cards/gray_back.png" class="player-cards"/><img src="assets/images/Cards/QC.png" class="player-cards"/>
         </div>
