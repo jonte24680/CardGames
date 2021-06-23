@@ -6,10 +6,10 @@ import express from "express";
 import socketIO from "socket.io";
 
 //const Data = require("./utils/data");
-import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom} from "./utils/data";
+import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame} from "./utils/data";
 //import Data from "./utils/data"
 //const nåt = require(./Client/js/classes);
-import {Room, Player, GameInfo, JoiningRoom} from "./utils/classes";
+import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
 
 //
 // Create Server
@@ -34,6 +34,14 @@ io.on("connection", (socket: socketIO.Socket) => {
         
         UpdateClients(room);
         console.log(`New card room created white id: ${room.roomID}`)
+    });
+
+    socket.on("host-new-game", (gameName: string) => {
+        StartNewGame(ROOMID, gameName);
+        var room = GetRoom(ROOMID);
+        if (room == null)
+            return;
+        UpdateClients(room);
     });
 
     //Player

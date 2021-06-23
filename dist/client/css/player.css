@@ -8,16 +8,12 @@
 }
 
 .P-card{
-    width: 40%;
     max-height:calc(100vh - 10rem);
-    aspect-ratio: 691 / 1056;
+    max-width: 50%;
 }
 
-#card0{
-    margin-left: 9%;
-}
-#card1{
-    margin-right: 9%;
+#cards {
+    margin: 0 9%;
 }
 
 #fold{

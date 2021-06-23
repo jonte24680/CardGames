@@ -28,24 +28,43 @@ export class Room {
         this.public = false;
     }
 
+    public StartNewGame(gameName: string): void | Error{
+        if(this.gameInfo.gameName != GameName.NoGameActiv)
+            return Error("Game Activ");
+
+        this.players.forEach(player => {
+            player.ResetStat();
+            player.inGame == true;
+        });
+
+        if(gameName == GameName.PokerTexas){
+            this.gameInfo.gameName = gameName;
+            this.NewCardDeck();
+
+            this.DealCards([{cardName: "Hand", manyCards: 2, publicSee: false, playerSee: true}]);
+        } else{
+            return Error("Not a valid game name");
+        }
+    }
+
     /**
     * 
     * @param xCardDeck how many card deck what is going to be in the card deck (Default: 1)
-    * @param JokersIncluded if joker is going to be inculdet in the card deck (Default: false)
+    * @param JokersIncluded !!NOT IMPLIMENTED!! if joker is going to be inculdet in the card deck (Default: false)
     */
     public NewCardDeck(xCardDeck: number = 1, JokersIncluded: boolean = false){
         var cards: string[] = []
 
-        for(var i = 0; i > xCardDeck; i++){
-            cards.concat(CardDeck());
+        for(var i = 0; i < xCardDeck; i++){
+            cards = cards.concat(CardDeck());
         }
 
-        for(var i = 0; i > 6; i++){
+        for(var i = 0; i < 6; i++){
             var j = cards.length;
-            var r : number, temp;
+            var r : number, temp: string;
     
             while(--j > 0){
-                r = Math.floor(Math.random());
+                r = Math.floor(Math.random()*j);
                 temp = cards[r];
                 cards[r] = cards[j];
                 cards[j] = temp;
@@ -55,13 +74,21 @@ export class Room {
         this.cardDeck = cards;
     }
 
+    public DealCards(DealCardInfos: DealCardInfo[]){
+        DealCardInfos.forEach(DealCardInfo => {
+            this.players.forEach(player => {
+                var cards = this.cardDeck.splice(0,DealCardInfo.manyCards)
+                var cardInfo = new Card(DealCardInfo.cardName, cards, DealCardInfo.playerSee, DealCardInfo.playerSee)
+                player.gameStat.cards.push(cardInfo);
+            });
+        })
+    }
+
     public PlayerData(playerID:string): Room {
         var roomData = this;
-        //roomData.allPlayers.forEach(element => {
-        //    if(playerID != element.id){
-        //        element.cards = ["??", "??"]
-        //    }
-        //});
+        
+        roomData.cardDeck.fill("??")
+
         roomData.players.forEach(player => {
             if(playerID != player.id){
                 player.gameStat.cards.forEach(cards => {
@@ -113,6 +140,10 @@ export class Player {
         this.username = username;
         this.id = id;
     }
+
+    ResetStat(){
+        this.gameStat = new GameStat()
+    }
 }
 
 export class GameStat {
@@ -150,6 +181,13 @@ export class JoiningRoom {
         this.username = username;
         this.roomID = roomID;
     }
+}
+
+interface DealCardInfo{
+    cardName: string;
+    manyCards: number;
+    publicSee: boolean;
+    playerSee: boolean;
 }
 
 /*if(module != undefined){

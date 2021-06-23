@@ -1,9 +1,7 @@
 var roomidElement = document.getElementsByClassName("info-roomID")[0];
 var roomid = Number(prompt("Custume id", "10"))
-function ChangeRoomID(id: number){
-    roomid = id
-    roomidElement.textContent = `RoomId: ${roomid}`
-}
+
+var room;
 
 var playersElement = document.getElementById("players");
 
@@ -11,9 +9,16 @@ var socket:SocketIOClient.Socket = io();
 
 socket.emit("new-room", roomid);
 
-socket.on("players-update", (room: any) => {
-    console.log(room);
-    ChangeRoomID(room.roomID)
+socket.on("players-update", (Room: any) => {
+    room = Room;
+    console.log(Room);
+    
+    UpdateGUI();
+    
+});
+
+function UpdateGUI(){
+    roomidElement.textContent = `RoomId: ${room.roomID}`
 
     playersElement.innerHTML = ""
     room.players.forEach((player) => {
@@ -22,24 +27,42 @@ socket.on("players-update", (room: any) => {
         <p class="player-money">Money: ${player.money} $</p>
         <p class="player-bet">Bet: ${player.gameStat.bet} $</p>
         <div class="player-card-images">
-            <img src="assets/images/Cards/gray_back.png" class="player-cards"/><img src="assets/images/Cards/QC.png" class="player-cards"/>
+            ${AddCardImages(player)}
         </div>
     </div>`
     });
-});
-
-
-/*
-function KeyPress(e) {
-    var evtobj = window.event? event : e
-    if (evtobj.keyCode == 90 && evtobj.ctrlKey) alert("Ctrl+z");
 }
 
-document.onkeydown = KeyPress;
+function AddCardImages(player): string{
+    // Base <img src=assets/images/Cards/green_back.png" class="player-cards"/>
+    var output: string = "";
+    player.gameStat.cards.forEach(cardInfo => {
+        if(cardInfo.name == "Hand"){
+            cardInfo.cards.forEach(card => {
+                output += `<img src="assets/images/Cards/${CardPath(card)}.png" class="player-cards"/>`
+            });
+        }
+    });
+    return output;
+}
 
-document.addEventListener("keydown", event => {
-    if (event.isComposing || event.keyCode === 229) {
-      return;
-    }
-    // do something
-  });*/
+function CardPath(card: string): string{
+    if(card == "??")
+        return "green_back";
+    return card;
+}
+
+//
+// Start new Game
+
+var newGameSelectElement = document.getElementById("new-game-select") as HTMLSelectElement;
+var newGameButtonElement = document.getElementById("new-game-button") as HTMLInputElement;
+
+newGameButtonElement.addEventListener("click", () => {
+    if(room.gameInfo.gameName != "NoGameActive")
+        return;
+
+    var gameName = newGameSelectElement.value;
+    socket.emit("host-new-game", gameName);
+
+});

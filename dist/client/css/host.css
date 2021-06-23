@@ -57,3 +57,19 @@
     width: 50%;
     /*width: 7rem;*/
 }
+
+#new-game{
+    display: inline-block;
+    background-color: orange;
+    padding: 0.5rem;
+}
+
+#new-game-titel{
+    width: max-content;
+    margin: 0;
+}
+
+#new-game-selector-div{
+    width: max-content;
+    margin: 0.3rem 0;
+}

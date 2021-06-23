@@ -1,6 +1,6 @@
 //const GlobalClasses = require("../Client/js/classes");
 
-import {Room, Player, GameInfo, JoiningRoom} from "./classes";
+import {Room, Player, GameInfo, JoiningRoom, GameName} from "./classes";
 
 var rooms: Room[] = [];
 
@@ -45,8 +45,15 @@ export function GetIndexRoomID(roomID: number): number{
 export function GetRoom(roomID: number): Room | null {
     var RID = GetIndexRoomID(roomID)
     if (RID == NaN)
-    return null;
+        return null;
     return rooms[RID];
+}
+
+export function StartNewGame(roomId: number, gameName: string): void | Error{
+    const RID = GetIndexRoomID(roomId);
+    if(isNaN(RID))
+        return Error("No room found with id");
+    return rooms[RID].StartNewGame(gameName);
 }
 /*
 module.exports = {

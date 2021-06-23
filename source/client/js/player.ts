@@ -1,5 +1,4 @@
-const card0 = document.getElementById("card0") as HTMLImageElement;
-const card1 = document.getElementById("card1") as HTMLImageElement;
+const cardsElement = document.getElementById("cards");
 
 var usernameElement = document.getElementById("username");
 var moneyElement = document.getElementById("money");
@@ -59,7 +58,23 @@ function UpdateGui(){
     const player = GetPlayer();
     usernameElement.innerText = player.username;
     moneyElement.innerText = `Money: ${player.money}`;
+    UpdateCards(player)
+}
 
+function UpdateCards(player){
+    //base <img src="assets/images/Cards/blue_back.png" alt="" id="card0" class="P-card">
+    var html: string = "";
+
+    player.gameStat.cards.forEach(cardInfo => {
+        if(cardInfo.name == "Hand"){
+            cardInfo.cards.forEach(card => {
+                if(card == "??")
+                    card = "green_back";
+                html += `<img src="assets/images/Cards/${card}.png" alt="" class="P-card">`;
+            });
+        }
+    });
+    cardsElement.innerHTML = html;
 }
 
 function GetPlayer(){
