@@ -2,7 +2,7 @@
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"module": "none",
-
+		"sourceMap": false,
 		/* Strict Type-Checking Options */
 		"strict": true,                                 /* Enable all strict type-checking options. */
 		"noImplicitAny": false,                       /* Raise error on expressions and declarations with an implied 'any' type. */
