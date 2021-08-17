@@ -83,6 +83,21 @@ function GetPlayer(){
         return player;
     return null;
 }
+foldButtonElement.addEventListener("click", () => {
+    SendAction("Fold", null);
+});
+
+checkButtonElement.addEventListener("click", () => {
+    SendAction("Check", null);
+});
+
+raiseButtonElement.addEventListener("click", () => {
+    SendAction("Raise", {raiseValue: Number(raiseInputElement.value)});
+});
+
+function SendAction(action: string, extra: any){
+    socket.emit("player-action", {action: action, extra: extra})
+}
 
 
 //

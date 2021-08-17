@@ -55,6 +55,13 @@ export function StartNewGame(roomId: number, gameName: string): void | Error{
         return Error("No room found with id");
     return rooms[RID].StartNewGame(gameName);
 }
+
+export function PlayerAction(roomId: number,playerID: string , action: string, extra: any ){
+    const RID = GetIndexRoomID(roomId);
+    if(isNaN(RID))
+        return Error("No room found with id");
+    rooms[RID].PlayerAction(playerID, action, extra)
+}
 /*
 module.exports = {
     CreateRoom, JoinRoom, GetIndexRoomID, GetRoom

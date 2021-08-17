@@ -6,7 +6,7 @@ import express from "express";
 import socketIO from "socket.io";
 
 //const Data = require("./utils/data");
-import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame} from "./utils/data";
+import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame, PlayerAction} from "./utils/data";
 //import Data from "./utils/data"
 //const nåt = require(./Client/js/classes);
 import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
@@ -15,7 +15,7 @@ import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
 // Create Server
 
 const app = express();
-app.use(express.static(path.join(__dirname, "Client")));
+app.use(express.static(path.join(__dirname, "client")));
 const server = http.createServer(app);
 const io: socketIO.Server = require("socket.io")(server);
 
@@ -58,6 +58,10 @@ io.on("connection", (socket: socketIO.Socket) => {
             UpdateClients(room);
             console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room.roomID}`)
         }
+    });
+    
+    socket.on("player-action", (actionData: any) => {
+        PlayerAction(ROOMID, socket.id, actionData.action, actionData.extra)
     });
 
 });
