@@ -50,7 +50,7 @@ io.on("connection", (socket: socketIO.Socket) => {
         const room = JoinRoom(joinData.roomID ,joinData.username, socket.id);
         if( room == null)
         {
-            io.emit("players-update", {error: 404});
+            socket.emit("players-update", {error: "Room doesn't exist"});
         } else {
             socket.join(room.roomID.toString());
             ROOMID = room.roomID;
