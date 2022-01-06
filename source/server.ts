@@ -62,9 +62,17 @@ io.on("connection", (socket: socketIO.Socket) => {
     
     socket.on("player-action", (actionData: any) => {
         PlayerAction(ROOMID, socket.id, actionData.action, actionData.extra)
+        UpdateClientsID(ROOMID);
     });
 
 });
+
+function UpdateClientsID(roomID:number) {
+    var room = GetRoom(roomID);
+    if(room == null)
+        return;
+    UpdateClients(room);
+}
 
 function UpdateClients(room: Room){
     io.to(room.hostID).emit("players-update", room)

@@ -1,18 +1,4 @@
-const CARDDECK: string[] = CardDeck();
-
-function CardDeck(){
-    var cardDeck: string[] = [];
-    var cardNumber: string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-    var cardColor: string[] = ["C", "D", "H", "S"];
-
-    cardNumber.forEach(number => {
-        cardColor.forEach(color => {
-            cardDeck.push(number + color);
-        });
-    });
-
-    return cardDeck;
-}
+import clone from "just-clone";
 
 export class Room {
     roomID: number;
@@ -45,11 +31,15 @@ export class Room {
 
             this.DealCards([{cardName: "Hand", manyCards: 2, publicSee: false, playerSee: true}]);
 
+            this.players.forEach(player=> {
+                player.inGame = true;
+            })
             this.players[0].TransferMoneyToBet(this.gameInfo.betStep);
             this.players[1].TransferMoneyToBet(this.gameInfo.betStep * 2);
+            this.gameInfo.maxBet = this.gameInfo.betStep *2;
 
             this.gameInfo.turnPlayerId = this.players[1].id;
-            this.NextPlayerTurn();
+            this.NextPlayerTurn(true);
 
         } else{
             return Error("Not a valid game name");
@@ -65,7 +55,7 @@ export class Room {
         var cards: string[] = []
 
         for(var i = 0; i < xCardDeck; i++){
-            cards = cards.concat(CardDeck());
+            cards = cards.concat(Card.CardDeck());
         }
 
         for(var i = 0; i < 6; i++){
@@ -87,7 +77,7 @@ export class Room {
         DealCardInfos.forEach(DealCardInfo => {
             this.players.forEach(player => {
                 var cards = this.cardDeck.splice(0,DealCardInfo.manyCards)
-                var cardInfo = new Card(DealCardInfo.cardName, cards, DealCardInfo.playerSee, DealCardInfo.playerSee)
+                var cardInfo = new Card(DealCardInfo.cardName, cards, DealCardInfo.publicSee, DealCardInfo.playerSee)
                 player.gameStat.cards.push(cardInfo);
             });
         })
@@ -112,7 +102,7 @@ export class Room {
 
                 } else if(this.players[PID].money + this.players[PID].gameStat.totalBet <= this.gameInfo.maxBet){ //All In
                     this.players[PID].TransferMoneyToBet(this.players[PID].money);
-                } else if(this.players[PID].gameStat.totalBet > this.gameInfo.maxBet){//going to raise to the max bet
+                } else if(this.players[PID].gameStat.totalBet < this.gameInfo.maxBet){//going to raise to the max bet
                     this.players[PID].TransferMoneyToBet(this.gameInfo.maxBet - this.players[PID].gameStat.totalBet);
                 }
 
@@ -127,122 +117,137 @@ export class Room {
                 return Error("Invalid input sent")
             }
 
-            this.players[PID].gameStat.hasBet == true;
+            this.players[PID].gameStat.hasBet = true;
             this.NextPlayerTurn();
         }
     }
 
-    private NextPlayerTurn(){
+    private NextPlayerTurn(HasBegun: boolean = false){
         if(this.gameInfo.gameName == GameName.PokerTexas){
            
-            if (this.HasEveryoneBet()) {
+            if (this.HasEveryoneBet() && !HasBegun) {
                 
                 if(this.gameInfo.round == 0){
                     this.cardDeck.shift();
 
                     this.gameInfo.cards.push(new Card("table", this.cardDeck.splice(0,3)))
                 } else if(this.gameInfo.round == 4){
-                    
-                    var allActive: WinnerCalc[] = Card.GetCardStrength(this.players, this.gameInfo.cards[0]);
+                    var allActive: WinnerCalc[] = Card.GetCardStrengths(this.players, this.gameInfo.cards[0]);
+                    var allWinners = WinnerCalc.GetBestWinnerCalc(allActive);
+                    if(allWinners == null)
+                        return;
+                    this.PlayerWon(allWinners);
 
                 } else { // round 1 & 2 & 3
                     this.gameInfo.cards[0].cards == this.gameInfo.cards[0].cards.concat(this.cardDeck.slice(0))
                 }
                 this.gameInfo.round++;
-            } else {
-                const TurnPID = this.PlayerIndex(this.gameInfo.turnPlayerId)
+            }
 
-                var i:number = TurnPID;
-                var NextPlayerIndex = -1;
+            const TurnPID = this.PlayerIndex(this.gameInfo.turnPlayerId)
 
-                while (NextPlayerIndex = -1){
-                    i++
-                    if(i >= this.players.length)
-                        i = 0; //resets the posision to the last one;
-                    if(i = TurnPID)
-                        break; //Break Condision
+            var i:number = TurnPID;
+            var NextPlayerIndex = -1;
 
-                    if(this.players[i].inGame == true){
-                        NextPlayerIndex = i;
-                    }
+            while (NextPlayerIndex == -1){
+                i++
+                if(i >= this.players.length)
+                    i = 0; //resets the posision to the last one;
+                if(i == TurnPID)
+                    break; //Break Condision
+
+                if(this.players[i].inGame == true){
+                    NextPlayerIndex = i;
                 }
+            }
 
-                if (NextPlayerIndex = -1) {
-                    this.PlayerWon(this.gameInfo.turnPlayerId);
-                }
+            if (NextPlayerIndex == -1) {
+                this.PlayerWon([new WinnerCalc(0, ["0"], this.players[this.PlayerIndex(this.gameInfo.turnPlayerId)])])
+                //this.PlayerWon(this.gameInfo.turnPlayerId);
+            }
 
-                this.gameInfo.turnPlayerId = this.players[NextPlayerIndex].id;
+            this.gameInfo.turnPlayerId = this.players[NextPlayerIndex].id;
 
-                var move: Moves;
-                if(this.players[NextPlayerIndex].gameStat.hasBet){
-                    move = new Moves(["fold", "check"]);
-                } else{
-                    move = new Moves(["fold", "check", "raise"]);
-                }
+            if(this.players[NextPlayerIndex].gameStat.hasBet){
+                this.gameInfo.moves = new Moves(["fold", "check"]);
+            } else{
+                this.gameInfo.moves = new Moves(["fold", "check", "raise"]);
             }
         }
     }
 
     private HasEveryoneBet(): boolean{
-        this.players.forEach(player =>{
+        var ret = true;
+        this.players.forEach((player) => {
             if(player.inGame == true){
-                if(player.gameStat.hasBet == true)
-                    return false;
+                if(player.gameStat.hasBet == false)
+                    ret = false;
                 else if(player.gameStat.totalBet < this.gameInfo.maxBet){
                     if(player.money != 0){
-                        return false;
+                        ret = false;
                     }
                 }
             }
-
         });
-        return true;
+        return ret;
     }
 
-    private PlayerWon(playerID: string){
+    /**
+     *  calculate and gives players the money the have won
+     * @param playerWon all the players what has won
+     * @todo add abileti for side pots for player what make all in and other 
+     * player rayse ower him so he get the rigth amout of money
+     */
+    private PlayerWon(playerWon: WinnerCalc[]){
         if(this.gameInfo.gameName == GameName.PokerTexas){
-            const PID = this.PlayerIndex(playerID)
-            var winningBet = this.players[PID].gameStat.totalBet;
-            var moneyWon = 0;
-
+            // gets all the money
+            var moneyPot = 0;
             this.players.forEach(player => {
-
-                moneyWon += winningBet;
+                moneyPot += player.gameStat.totalBet
+                player.gameStat.totalBet = 0
+                /*// may be usfull when side pots gets added
+                moneyPot += winningBet;
                 player.gameStat.totalBet -= winningBet
-
+                
                 if(player.gameStat.bet < 0){
-                    moneyWon += player.gameStat.totalBet;
+                    moneyPot += player.gameStat.totalBet;
                     player.gameStat.totalBet = 0;
                 }
-
+                
                 if(player.gameStat.totalBet > 0){
                     player.money -= player.gameStat.totalBet;
                     player.gameStat.totalBet = 0;
-                }
-
+                }*/
             });
 
-            this.players[PID].money += moneyWon;
+            var moneyWon = moneyPot/playerWon.length
+
+            playerWon.forEach(winnerCalc => {
+                if(winnerCalc.player == null)
+                    return;
+                const PID = this.PlayerIndex(winnerCalc.player.id)
+                this.players[PID].money += moneyWon;
+            });
 
             this.gameInfo.gameName = GameName.NoGameActiv;
         }
     }
 
     public PlayerData(playerID:string): Room {
-        var roomData = this;
+        var roomData: Room = clone(this);
         
-        roomData.cardDeck.fill("??")
+        roomData.cardDeck.fill("??");
 
         roomData.players.forEach(player => {
-            if(playerID != player.id){
-                player.gameStat.cards.forEach(cards => {
-                    if (cards.publicSee == false)
-                        cards.MakeHidden();
-                });
-            } else {
+            if(playerID == player.id){
                 player.gameStat.cards.forEach(cards => {
                     if (cards.playerSee == false)
-                        cards.MakeHidden();
+                        cards.cards.fill("??");
+                }); // cards.MakeHidden(); it is not a room class in js
+            } else {
+                player.gameStat.cards.forEach(cards => {
+                    if (cards.publicSee == false)
+                        cards.cards.fill("??");
                 });
             }
         });
@@ -313,9 +318,9 @@ export class Player {
         if(money > this.money)
             money = this.money;
         
-        this.gameStat.bet =+ money;
-        this.gameStat.totalBet =+ money;
-        this.money =- money;
+        this.gameStat.bet += money;
+        this.gameStat.totalBet += money;
+        this.money -= money;
     }
 
     ResetStat(){
@@ -341,130 +346,267 @@ export class Card{
     publicSee: boolean = false;
     playerSee: boolean = true;
     name: string = "";
-
+    
     constructor(name: string, cards: string[] = [], publicSee: boolean = false, playerSee: boolean = true){
         this.name = name;
         this.cards = cards;
         this.publicSee = publicSee;
         this.playerSee = playerSee;
     };
+    
+    public static readonly cardColors: string[] = ["C", "D", "H", "S"];
+    public static readonly cardNumbers: string[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]; 
+    
+    static CardDeck(){
+        var deck: string[] = []
+        Card.cardNumbers.forEach(number => {
+            Card.cardColors.forEach(color => {
+                deck.push(number + color);
+            });
+        });
+        return deck;
+    }
 
-    public MakeHidden(){
+    public MakeHidden() {
         this.cards.fill("??");
     }
 
-    static GetCardStrength(players: Player[], tableCard: Card): WinnerCalc[]{
+    public static ToNumber(string: string, aceLow: boolean = true): number{
+        if (string.length != 1) {
+            string = string.split("")[0];
+        }
+
+        if(string == "A")
+            return aceLow ? 1 : 14;
+        if (string == "J")
+            return 11;
+        if (string == "Q")
+            return 12;
+        if (string == "K")
+            return 13;
+        return Number(string)
+    }
+
+    public static SortCardsAceLow(a:string, b:string): number{
+        var A = Card.ToNumber(a.split("")[0], true)
+        var B = Card.ToNumber(b.split("")[0], true)
+        
+        return A-B;
+    }
+    public static SortCardsAceHigh(a:string, b:string): number{
+        var A = Card.ToNumber(a.split("")[0], false)
+        var B = Card.ToNumber(b.split("")[0], false)
+        
+        return A-B;
+    }
+
+    public static FilterColor(cards: string[], color: string): string[]{
+        return cards.filter(card => card.split("")[1] == color)
+    }
+
+    public static GetHighestCards(cards: string[], amount: number): string[]{
+        var sortedCards = cards.sort(this.SortCardsAceHigh).reverse();
+        return sortedCards.splice(0,amount);
+        
+    }
+
+    public static PutAceLast(cards: string[]): string[]{
+        // Old Implimitation
+        /*var sortedCards = cards.sort(this.SortCards);
+        var last = cards.map(card => this.ToNumber(card)).lastIndexOf(1);
+        var removed = sortedCards.splice(0, last);
+        sortedCards.concat(removed);*/
+        return cards.sort(Card.SortCardsAceHigh);
+    }
+
+    public static GetCardStrengths(players: Player[], tableCard: Card): WinnerCalc[]{
         let ret: WinnerCalc[] = []
         players.forEach(player => {
             if(player.inGame == true){
-                function ToNumber(string: string){
-                    if(string == "A")
-                        return 1;
-                    else if (string == "J")
-                        return 11;
-                    else if (string == "Q")
-                        return 12;
-                    else if (string == "K")
-                        return 13;
-                    else
-                        return Number(string)
-                }
-
-                function HighestWinnerCalc(winnerCalc1: WinnerCalc, winnerCalc2: WinnerCalc): WinnerCalc | null{
-                    if(winnerCalc1 == null)
-                        return winnerCalc2;
-                    if(winnerCalc2 == null)
-                        return winnerCalc1;
-
-                    if(winnerCalc1.bigPoint > winnerCalc2.bigPoint)
-                        return winnerCalc1;
-                    else if(winnerCalc1.bigPoint < winnerCalc2.bigPoint)
-                        return winnerCalc2;
-                    else {
-                        var point1: number[] = winnerCalc1.smallPoints.map(x => ToNumber(x));
-                        var point2: number[] = winnerCalc2.smallPoints.map(x => ToNumber(x));
-
-                        if(winnerCalc1.bigPoint == 5){
-                            if(point1[0] == 1)
-                                point1[0] = 14;
-                            if(point2[0] == 1)
-                                point2[0] = 14;
-                        }
-
-                        for(let i = 0; i < point1.length; i++){
-                            if( point1[i] > point2[i])
-                                return winnerCalc1
-                            else if( point1[i] < point2[i])
-                                return winnerCalc2
-                        }
-                    }
-                    return null
-                }
 
                 let cards_string: string[] = player.gameStat.cards[player.gameStat.GetCardIndex("Hand")].cards.concat(tableCard.cards);
-
-                let cards_sorted = cards_string.sort((a,b) => {
-                
-                    var A = ToNumber(a.split("")[0])
-                    var B = ToNumber(b.split("")[0])
-                    
-                    return A-B;
-                });
-
-                var bestHand: WinnerCalc = null;
-
-                if(() => {// If Straight 5
-                    let cards_sorted_noDupe: string[] = [];
-
-                    cards_sorted.forEach(card=>{
-                        if(!cards_sorted_noDupe.map(value => value.split("")[0]).includes(card.split("")[0]))
-                            cards_sorted_noDupe.push(card);
-                    });
-                    
-                    if (cards_sorted_noDupe.length < 5)
-                        return false; 
-                    
-                    function GetNumber(index: number):number{
-                        if(index < cards_sorted_noDupe.length)
-                            return ToNumber(cards_sorted_noDupe[index].split("")[0]);
-                        else if (index == cards_sorted_noDupe.length){
-                            let res = ToNumber(cards_sorted_noDupe[0].split("")[0])
-                            if (res == 1)
-                                res = 14
-                            return res;
-                        }
-                        throw new Error("Index is to high over length ( index > length)");
-                        
-                    }
-
-                    var score: WinnerCalc = null;
-                    for (let i = 0; i < cards_sorted_noDupe.length; i++) {
-                        var isStraight = true;
-                        for(var j = 1; j < 5; j++){
-                            if(GetNumber(i) + j != GetNumber(i + j)){
-                                isStraight = false
-                            }
-                            score = HighestWinnerCalc(score, {player: player, bigPoint: 5, smallPoints: cards_sorted_noDupe.splice( 0, 5)})
-                        }
-                    }
-
-                    if(score = null)
-                        return false
-                        
-                    bestHand = HighestWinnerCalc(bestHand, score);
-                    return true;
-
-                }){
-                    if(/* Straight flush */ false){
-                        if(/* Royal flush */ false){
-
-                        }
-                    }
-                }
+                ret.push(this.GetCardStrenght(player, cards_string))
             }
         });
-
         return ret;
+    }
+
+    static GetCardStrenght(player: Player, cards: string[]): WinnerCalc{
+        //let cards_sorted = cards.sort(this.SortCards);
+
+        var bestHand: WinnerCalc | null = null;
+
+        /* ToDo: 
+            Make sure what ace (1) is the first in the small point
+        */
+        bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForFlush(cards));    
+        bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForStraight(cards));
+        bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForStraightFlush(cards)); 
+        bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForRoyalFlush(cards)); 
+
+        if(bestHand == null)
+            throw new Error(`player: ${player.username} has no besthand???`)
+
+        bestHand.player = player
+
+        return bestHand;          
+    }
+
+    public static LookForPair(cards : string[]): WinnerCalc | null{
+        cards = cards.sort(Card.SortCardsAceHigh);
+        var pair: string[][] = []; // 
+        var three: string[][] = [];
+        var four: string[][] = [];
+        var rest: string[] = [];
+        for (let i = 0; i < cards.length; i++) {
+            if(this.ToNumber(cards[i]) == this.ToNumber(cards[i+1])){
+                if(this.ToNumber(cards[i]) == this.ToNumber(cards[i+2])){
+                    if(this.ToNumber(cards[i]) == this.ToNumber(cards[i+3])){
+                        // Four of a kind
+                        four.push([cards[i], cards[i+1], cards[i+2], cards[i+3]])
+                        i += 3;
+                    } else {
+                        // Three of a kind
+                        three.push([cards[i], cards[i+1], cards[i+2]]);
+                        i += 2;
+                    }
+                } else {
+                    // pair
+                    pair.push([cards[i], cards[i+1]]);
+                    i++;
+                }
+            } else {
+                // non of above
+                rest.push(cards[i]);
+            }
+        }
+
+        if (four.length > 0){
+            // four of a kind
+            var theOne = four.pop();
+            rest = Card.PutAceLast(rest.concat(pair.flat(), three.flat(), four.flat()).flat().sort(Card.SortCardsAceHigh));
+            if(theOne == undefined || rest == undefined)
+                return null; // andgry compiler
+            var pop = rest.pop()
+            if(pop == undefined)
+                return null;
+            theOne.push();
+            return new WinnerCalc(7, theOne);
+        }
+        if (three.length > 0){
+            var theOne = three.pop();
+            if(three.length > 0 || pair.length > 0){
+                // full house
+                var thePair = pair.concat(three).sort((a,b) => Card.ToNumber(a[0], false) - Card.ToNumber(b[0], false)).pop();
+                
+                if(theOne == undefined || thePair == undefined)
+                    return null; // angry compiler
+                theOne.concat(thePair.splice(0,2));
+                return new WinnerCalc(6, theOne);
+            }
+            // three of a kind
+            //rest = rest.concat(pair.flat(), three.flat()).sort(Card.SortCards); // dont think i need this
+
+            if(theOne == undefined)
+                return null;
+            return new WinnerCalc(3, theOne.concat(rest.splice(rest.length - 2,2)))
+        }
+        if(pair.length > 0){
+            var first = pair.pop();
+            if(pair.length > 0){
+                // two pairs
+                var secund = pair.pop();
+                var last = Card.PutAceLast(rest.concat(pair.flat()).sort(Card.SortCardsAceHigh)).pop()
+                if(first == undefined || secund == undefined || last == undefined)
+                    return  null;
+                return new WinnerCalc(2, first.concat(secund, last));
+            }
+            // pair
+            if(first == undefined)
+                return null;
+            return new WinnerCalc(1, first.concat(rest.splice(rest.length - 3, 3)));
+        }
+        return new WinnerCalc(0, rest.splice(rest.length - 5, 5));
+    }
+
+    public static LookForFlush(cards : string[]): WinnerCalc | null{
+        cards = cards.sort(Card.SortCardsAceHigh);
+        var score: WinnerCalc | null = null;
+
+        for (let i = 0; i < this.cardColors.length; i++) {
+            var card_filterd = this.FilterColor(cards, this.cardColors[i])
+            if (card_filterd.length >= 5) {
+                var tScore = WinnerCalc.BetterWinnerCalc(score, new WinnerCalc(5, card_filterd.splice(card_filterd.length - 5, 5).reverse()));
+                if(tScore != null){
+                    score = tScore
+                }
+            }
+        }
+        return score
+    }
+
+    public static LookForStraight(cards : string[], bigPoint: number = 4) : WinnerCalc | null{
+        cards = cards.sort(Card.SortCardsAceLow);
+        let cards_noDupe: string[] = [];
+
+        cards.forEach(card=>{
+            if(!cards_noDupe.map(value => value.split("")[0]).includes(card.split("")[0]))
+            cards_noDupe.push(card);
+        });
+        
+        if (cards_noDupe.length < 5)
+            return null; 
+        
+        function GetNumber(index: number):number{
+            if(index < cards_noDupe.length)
+            return Card.ToNumber(cards_noDupe[index].split("")[0]);
+            else if (index == cards_noDupe.length){
+                let res = Card.ToNumber(cards_noDupe[0].split("")[0])
+                if (res == 1)
+                res = 14
+                return res;
+            }
+            throw new Error("Index is to high over length ( index > length)");
+        }
+
+        function GetSplicedStraight(i:number): string[] {
+            var temp = cards_noDupe
+            if(i + 4 == cards_noDupe.length)
+                return temp.splice(i,4).concat(temp[0])
+            return temp.slice(i, 5);
+        }
+        
+        var score: WinnerCalc | null = null;
+        for (let i = 0; i < cards_noDupe.length - 4; i++) {
+            var isStraight = true;
+            for(var j = 1; j < 5; j++){
+                if(GetNumber(i) + j != GetNumber(i + j)){
+                    isStraight = false
+                }
+            }
+            if(isStraight)
+                score = WinnerCalc.BetterWinnerCalc(score, new WinnerCalc(bigPoint, GetSplicedStraight(i)))
+        }
+        return score
+    }
+
+    public static LookForStraightFlush(cards : string[], bigPoint: number = 8): WinnerCalc | null{
+        cards = cards.sort(Card.SortCardsAceLow);
+        var score: WinnerCalc | null = null;
+        score = WinnerCalc.BetterWinnerCalc(score, this.LookForStraight(this.FilterColor(cards, "C"), bigPoint))
+        score = WinnerCalc.BetterWinnerCalc(score, this.LookForStraight(this.FilterColor(cards, "D"), bigPoint))
+        score = WinnerCalc.BetterWinnerCalc(score, this.LookForStraight(this.FilterColor(cards, "H"), bigPoint))
+        score = WinnerCalc.BetterWinnerCalc(score, this.LookForStraight(this.FilterColor(cards, "S"), bigPoint))
+        return score;
+    }
+
+    public static LookForRoyalFlush(cards: string[]): WinnerCalc | null{   
+        cards = cards.sort(Card.SortCardsAceLow); 
+        var royal = cards.filter(card => {
+            card = card.split("")[0];
+            return card == "A" || card == "10" || card == "J" || card == "Q" || card == "K";
+        })
+        return this.LookForStraightFlush(royal, 9);
     }
 }
 
@@ -486,10 +628,103 @@ interface DealCardInfo{
     playerSee: boolean;
 }
 
-interface WinnerCalc{
-    player: Player;
+class WinnerCalc{
+    player: Player | null;
     bigPoint: number;
     smallPoints: string[];
+
+    constructor(bigPoint: number, smallPoints: string[], player: Player | null = null){
+        this.bigPoint = bigPoint;
+        this.smallPoints = smallPoints;
+        this.player = player
+    }
+
+    public BetterWinnerCalc(winnerCalc2: WinnerCalc | null): WinnerCalc | null{ 
+        return WinnerCalc.BetterWinnerCalc(this, winnerCalc2)
+    }
+
+    static BetterWinnerCalc(winnerCalc1: WinnerCalc | null, winnerCalc2: WinnerCalc | null): WinnerCalc | null{
+        if(winnerCalc1 == null)
+            return winnerCalc2;
+        if(winnerCalc2 == null)
+            return winnerCalc1;
+        if(WinnerCalc.Equal(winnerCalc1, winnerCalc2))
+            return null;
+
+        return WinnerCalc.isBigger(winnerCalc1, winnerCalc2) ? winnerCalc1 : winnerCalc2;
+    } 
+
+    public Equal(winnerCalc2: WinnerCalc): boolean{ 
+        return WinnerCalc.Equal(this, winnerCalc2);
+    }
+
+    static Equal(winnerCalc1: WinnerCalc, winnerCalc2: WinnerCalc): boolean{
+        if(winnerCalc1 != winnerCalc2)
+            return false
+
+        var point1: number[] = winnerCalc1.smallPoints.map(x => Card.ToNumber(x));
+        var point2: number[] = winnerCalc2.smallPoints.map(x => Card.ToNumber(x));
+
+        if(winnerCalc1.bigPoint == 5){
+            if(point1[0] == 1)
+                point1[0] = 14;
+            if(point2[0] == 1)
+                point2[0] = 14;
+        }
+
+        for(let i = 0; i < point1.length; i++){
+            if( point1[i] != point2[i])
+                return false
+        }
+
+        return true;
+    }
+
+    public isBigger(winnerCalc2: WinnerCalc): boolean{
+        return WinnerCalc.isBigger(this, winnerCalc2);
+    }
+
+    private static isBigger(winnerCalc1: WinnerCalc, winnerCalc2: WinnerCalc): boolean{
+        if(winnerCalc1.bigPoint > winnerCalc2.bigPoint)
+            return true;
+        else if(winnerCalc1.bigPoint < winnerCalc2.bigPoint)
+            return false;
+        else {
+            var point1: number[] = winnerCalc1.smallPoints.map(x => Card.ToNumber(x));
+            var point2: number[] = winnerCalc2.smallPoints.map(x => Card.ToNumber(x));
+    
+            if(winnerCalc1.bigPoint == 5){
+                if(point1[0] == 1)
+                    point1[0] = 14;
+                if(point2[0] == 1)
+                    point2[0] = 14;
+            }
+    
+            for(let i = 0; i < point1.length; i++){
+                if( point1[i] > point2[i])
+                    return true
+                else if( point1[i] < point2[i])
+                    return false
+            }
+        }
+        return false;
+    }
+    
+
+    static GetBestWinnerCalc(winnerCalcs : WinnerCalc[]): WinnerCalc[] | null{
+        if(winnerCalcs.length == 0)
+            return null
+        var best: WinnerCalc[] = [winnerCalcs[0]];
+        for (let i = 1; i < winnerCalcs.length; i++) {
+            if(best[0].Equal(winnerCalcs[i])){
+                best.push()
+            }
+            else if (!WinnerCalc.isBigger(best[0], winnerCalcs[i])){
+                best = [winnerCalcs[i]]
+            }
+        }
+        return best;
+    }
 }
 
 /*if(module != undefined){

@@ -22,7 +22,7 @@ function UpdateGUI(){
 
     playersElement.innerHTML = ""
     room.players.forEach((player) => {
-        playersElement.innerHTML += `        <div class="player">
+        playersElement.innerHTML += `        <div class="player" style="${player.id == room.gameInfo.turnPlayerId ? "background-color:hsl(119, 100%, 80%);" : ""}">
         <p class="player-name">${player.username}</p>
         <p class="player-money">Money: ${player.money} $</p>
         <p class="player-bet">Bet: ${player.gameStat.bet} $</p>
