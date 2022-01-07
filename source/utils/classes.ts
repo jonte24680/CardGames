@@ -105,14 +105,15 @@ export class Room {
                 } else if(this.players[PID].gameStat.totalBet < this.gameInfo.maxBet){//going to raise to the max bet
                     this.players[PID].TransferMoneyToBet(this.gameInfo.maxBet - this.players[PID].gameStat.totalBet);
                 }
-
+                this.UpdateMaxBet();
             } else if (action == "Raise" && this.gameInfo.moves.rasie){
                 
                 if(extra.raiseValue + this.players[PID].gameStat.totalBet < this.gameInfo.maxBet)
                     extra.raiseValue = this.gameInfo.maxBet - this.players[PID].gameStat.totalBet
 
                 this.players[PID].TransferMoneyToBet(extra.raiseValue);
-
+                this.gameInfo.maxBet += extra.raiseValue;
+                this.UpdateMaxBet();
             } else {
                 return Error("Invalid input sent")
             }
@@ -131,16 +132,25 @@ export class Room {
                     this.cardDeck.shift();
 
                     this.gameInfo.cards.push(new Card("table", this.cardDeck.splice(0,3)))
-                } else if(this.gameInfo.round == 4){
+                } else if(this.gameInfo.round == 3){
                     var allActive: WinnerCalc[] = Card.GetCardStrengths(this.players, this.gameInfo.cards[0]);
                     var allWinners = WinnerCalc.GetBestWinnerCalc(allActive);
                     if(allWinners == null)
                         return;
                     this.PlayerWon(allWinners);
 
-                } else { // round 1 & 2 & 3
-                    this.gameInfo.cards[0].cards == this.gameInfo.cards[0].cards.concat(this.cardDeck.slice(0))
+                } else { // round 1 & 2
+                    //this.gameInfo.cards[0].cards == this.gameInfo.cards[0].cards.concat(this.cardDeck.slice(0))
+                    var card = this.cardDeck.shift()
+                    if (card == undefined) 
+                        return;
+                    this.gameInfo.cards[0].cards.push(card);
                 }
+
+                this.players.forEach(player => {
+                    player.NewRound();
+                });
+
                 this.gameInfo.round++;
             }
 
@@ -174,6 +184,16 @@ export class Room {
                 this.gameInfo.moves = new Moves(["fold", "check", "raise"]);
             }
         }
+    }
+
+    private UpdateMaxBet(){
+        var higest: number = 0;
+        this.players.forEach(player => {
+            higest = Math.max(higest, player.gameStat.totalBet) ;
+        });
+        if(higest == undefined)
+            return;
+        this.gameInfo.maxBet = higest;
     }
 
     private HasEveryoneBet(): boolean{
@@ -229,28 +249,47 @@ export class Room {
                 this.players[PID].money += moneyWon;
             });
 
-            this.gameInfo.gameName = GameName.NoGameActiv;
+            //this.gameInfo.gameName = GameName.NoGameActiv;
+            this.gameInfo.turnPlayerId = "";
         }
+    }
+
+    public Reset(){
+        this.gameInfo.maxBet = 0;
+        this.gameInfo.cards = [];
+        this.gameInfo.gameName = GameName.NoGameActiv;
+        this.gameInfo.moves = new Moves();
+        this.gameInfo.round = 0;
+        this.gameInfo.turnPlayerId = "";
+
+        this.cardDeck = [];
+
+        this.players.forEach(player => {
+            player.ResetStat();
+            player.inGame = false;
+        });
     }
 
     public PlayerData(playerID:string): Room {
         var roomData: Room = clone(this);
         
-        roomData.cardDeck.fill("??");
-
-        roomData.players.forEach(player => {
-            if(playerID == player.id){
-                player.gameStat.cards.forEach(cards => {
-                    if (cards.playerSee == false)
-                        cards.cards.fill("??");
-                }); // cards.MakeHidden(); it is not a room class in js
-            } else {
-                player.gameStat.cards.forEach(cards => {
-                    if (cards.publicSee == false)
-                        cards.cards.fill("??");
-                });
-            }
-        });
+        if (this.gameInfo.turnPlayerId != ""){
+            roomData.cardDeck.fill("??");
+    
+            roomData.players.forEach(player => {
+                if(playerID == player.id){
+                    player.gameStat.cards.forEach(cards => {
+                        if (cards.playerSee == false)
+                            cards.cards.fill("??");
+                    }); // cards.MakeHidden(); it is not a room class in js
+                } else {
+                    player.gameStat.cards.forEach(cards => {
+                        if (cards.publicSee == false)
+                            cards.cards.fill("??");
+                    });
+                }
+            });
+        }
 
         return roomData;
     }
@@ -326,6 +365,11 @@ export class Player {
     ResetStat(){
         this.gameStat = new GameStat()
     }
+
+    NewRound(){
+        this.gameStat.hasBet = false;
+        this.gameStat.bet = 0;
+    }
 }
 
 export class GameStat {
@@ -371,9 +415,14 @@ export class Card{
         this.cards.fill("??");
     }
 
-    public static ToNumber(string: string, aceLow: boolean = true): number{
-        if (string.length != 1) {
-            string = string.split("")[0];
+    public static ToNumber(string: string, IsColor: boolean = true , aceLow: boolean = true): number{
+        if (IsColor) {
+            var split = string.split("")
+            split.pop();
+            string = ""
+            split.forEach(str => {
+                string += str;
+            });
         }
 
         if(string == "A")
@@ -439,6 +488,7 @@ export class Card{
         /* ToDo: 
             Make sure what ace (1) is the first in the small point
         */
+        bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForPair(cards));   
         bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForFlush(cards));    
         bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForStraight(cards));
         bestHand = WinnerCalc.BetterWinnerCalc(bestHand, this.LookForStraightFlush(cards)); 
@@ -459,9 +509,9 @@ export class Card{
         var four: string[][] = [];
         var rest: string[] = [];
         for (let i = 0; i < cards.length; i++) {
-            if(this.ToNumber(cards[i]) == this.ToNumber(cards[i+1])){
-                if(this.ToNumber(cards[i]) == this.ToNumber(cards[i+2])){
-                    if(this.ToNumber(cards[i]) == this.ToNumber(cards[i+3])){
+            if(i < cards.length - 1  && this.ToNumber(cards[i]) == this.ToNumber(cards[i+1])){
+                if(i < cards.length - 2  && this.ToNumber(cards[i]) == this.ToNumber(cards[i+2])){
+                    if(i < cards.length - 3  && this.ToNumber(cards[i]) == this.ToNumber(cards[i+3])){
                         // Four of a kind
                         four.push([cards[i], cards[i+1], cards[i+2], cards[i+3]])
                         i += 3;
