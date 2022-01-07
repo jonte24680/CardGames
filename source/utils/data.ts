@@ -56,6 +56,13 @@ export function StartNewGame(roomId: number, gameName: string): void | Error{
     return rooms[RID].StartNewGame(gameName);
 }
 
+export function ResetGame(roomId: number) {
+    const RID = GetIndexRoomID(roomId);
+    if(isNaN(RID))
+        return Error("No room found with id");
+    return rooms[RID].Reset();
+}
+
 export function PlayerAction(roomId: number, playerID: string, action: string, extra: any ){
     const RID = GetIndexRoomID(roomId);
     if(isNaN(RID))

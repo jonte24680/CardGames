@@ -75,13 +75,19 @@ function CardPath(card: string): string{
 
 var newGameSelectElement = document.getElementById("new-game-select") as HTMLSelectElement;
 var newGameButtonElement = document.getElementById("new-game-button") as HTMLInputElement;
+var resetButtonElement = document.getElementById("reset-button") as HTMLInputElement;
 
 newGameButtonElement.addEventListener("click", () => {
-    if(room.gameInfo.gameName != "NoGameActive")
+    if(room.gameInfo.turnPlayerId != "")
         return;
 
     var gameName = newGameSelectElement.value;
     socket.emit("host-new-game", gameName);
 
+});
+
+resetButtonElement.addEventListener("click", () => {
+    if(room.gameInfo.turnPlayerId == "")
+        socket.emit("host-reset");
 });
 

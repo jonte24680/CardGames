@@ -138,7 +138,7 @@ export class Room {
                     if(allWinners == null)
                         return;
                     this.PlayerWon(allWinners);
-
+                    return;
                 } else { // round 1 & 2
                     //this.gameInfo.cards[0].cards == this.gameInfo.cards[0].cards.concat(this.cardDeck.slice(0))
                     var card = this.cardDeck.shift()

@@ -6,7 +6,7 @@ import express from "express";
 import socketIO from "socket.io";
 
 //const Data = require("./utils/data");
-import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame, PlayerAction} from "./utils/data";
+import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame, PlayerAction, ResetGame} from "./utils/data";
 //import Data from "./utils/data"
 //const nåt = require(./Client/js/classes);
 import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
@@ -42,6 +42,12 @@ io.on("connection", (socket: socketIO.Socket) => {
         if (room == null)
             return;
         UpdateClients(room);
+    });
+    
+
+    socket.on("host-reset", () => {
+        ResetGame(ROOMID);
+        UpdateClientsID(ROOMID);
     });
 
     //Player
