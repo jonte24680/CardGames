@@ -58,6 +58,24 @@
     /*width: 7rem;*/
 }
 
+#stat{
+    background-color: blueviolet;
+}
+
+#stat-text-box{
+
+}
+
+#stat-cards{
+
+}
+
+.stat-card{
+    display: inline-block;
+    margin: 0;
+    width: 7rem;
+}
+
 #new-game{
     display: inline-block;
     background-color: orange;
