@@ -34,6 +34,10 @@ function UpdateGUI(){
         </div>
     </div>`
     });
+
+    newGameSelectElement.disabled = room.gameInfo.gameName != "NoGameActive"
+    newGameButtonElement.disabled = room.gameInfo.gameName != "NoGameActive"
+    resetButtonElement.disabled = room.gameInfo.gameName == "NoGameActive"
 }
 
 function UpdateGUIStat(room) {
@@ -87,7 +91,7 @@ newGameButtonElement.addEventListener("click", () => {
 });
 
 resetButtonElement.addEventListener("click", () => {
-    if(room.gameInfo.turnPlayerId == "")
+    if(room.gameInfo.gameName != "NoGameActive")
         socket.emit("host-reset");
 });
 
