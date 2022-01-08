@@ -81,7 +81,8 @@ function UpdateClientsID(roomID:number) {
 }
 
 function UpdateClients(room: Room){
-    io.to(room.hostID).emit("players-update", room)
+    //io.to(room.hostID).emit("players-update", room)
+    io.to(room.hostID).emit("players-update", room.PlayerData(room.hostID))
     room.players.forEach(player => {
         io.to(player.id).emit("players-update", room.PlayerData(player.id))
     });
