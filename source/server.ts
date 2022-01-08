@@ -6,7 +6,7 @@ import express from "express";
 import socketIO from "socket.io";
 
 //const Data = require("./utils/data");
-import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame} from "./utils/data";
+import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame, PlayerAction, ResetGame} from "./utils/data";
 //import Data from "./utils/data"
 //const nåt = require(./Client/js/classes);
 import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
@@ -15,7 +15,7 @@ import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
 // Create Server
 
 const app = express();
-app.use(express.static(path.join(__dirname, "Client")));
+app.use(express.static(path.join(__dirname, "client")));
 const server = http.createServer(app);
 const io: socketIO.Server = require("socket.io")(server);
 
@@ -43,6 +43,12 @@ io.on("connection", (socket: socketIO.Socket) => {
             return;
         UpdateClients(room);
     });
+    
+
+    socket.on("host-reset", () => {
+        ResetGame(ROOMID);
+        UpdateClientsID(ROOMID);
+    });
 
     //Player
     socket.on("join-room", (joinData: any) => {
@@ -59,11 +65,24 @@ io.on("connection", (socket: socketIO.Socket) => {
             console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room.roomID}`)
         }
     });
+    
+    socket.on("player-action", (actionData: any) => {
+        PlayerAction(ROOMID, socket.id, actionData.action, actionData.extra)
+        UpdateClientsID(ROOMID);
+    });
 
 });
 
+function UpdateClientsID(roomID:number) {
+    var room = GetRoom(roomID);
+    if(room == null)
+        return;
+    UpdateClients(room);
+}
+
 function UpdateClients(room: Room){
-    io.to(room.hostID).emit("players-update", room)
+    //io.to(room.hostID).emit("players-update", room)
+    io.to(room.hostID).emit("players-update", room.PlayerData(room.hostID))
     room.players.forEach(player => {
         io.to(player.id).emit("players-update", room.PlayerData(player.id))
     });

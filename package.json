@@ -17,6 +17,7 @@
     "@types/socket.io-client": "^1.4.36",
     "@types/systemjs": "^6.1.0",
     "express": "^4.17.1",
+    "just-clone": "^5.0.1",
     "socket.io": "^3.0.4",
     "systemjs": "^6.8.3"
   },
