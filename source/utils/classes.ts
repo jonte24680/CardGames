@@ -415,7 +415,7 @@ export class Card{
         this.cards.fill("??");
     }
 
-    public static ToNumber(string: string, IsColor: boolean = true , aceLow: boolean = true): number{
+    public static ToNumber(string: string, aceLow: boolean = true, IsColor: boolean = true ): number{
         if (IsColor) {
             var split = string.split("")
             split.pop();
@@ -437,20 +437,23 @@ export class Card{
     }
 
     public static SortCardsAceLow(a:string, b:string): number{
-        var A = Card.ToNumber(a.split("")[0], true)
-        var B = Card.ToNumber(b.split("")[0], true)
+        var A = Card.ToNumber(a, true)
+        var B = Card.ToNumber(b, true)
         
         return A-B;
     }
     public static SortCardsAceHigh(a:string, b:string): number{
-        var A = Card.ToNumber(a.split("")[0], false)
-        var B = Card.ToNumber(b.split("")[0], false)
+        var A = Card.ToNumber(a, false)
+        var B = Card.ToNumber(b, false)
         
         return A-B;
     }
 
     public static FilterColor(cards: string[], color: string): string[]{
-        return cards.filter(card => card.split("")[1] == color)
+        return cards.filter(card => {
+            var split = card.split("")
+            return split[split.length - 1];
+        })
     }
 
     public static GetHighestCards(cards: string[], amount: number): string[]{
@@ -547,7 +550,7 @@ export class Card{
             var theOne = three.pop();
             if(three.length > 0 || pair.length > 0){
                 // full house
-                var thePair = pair.concat(three).sort((a,b) => Card.ToNumber(a[0], false) - Card.ToNumber(b[0], false)).pop();
+                var thePair = pair.concat(three).sort((a,b) => Card.ToNumber(a[0], true) - Card.ToNumber(b[0], true)).pop();
                 
                 if(theOne == undefined || thePair == undefined)
                     return null; // angry compiler
@@ -600,7 +603,7 @@ export class Card{
         let cards_noDupe: string[] = [];
 
         cards.forEach(card=>{
-            if(!cards_noDupe.map(value => value.split("")[0]).includes(card.split("")[0]))
+            if(!cards_noDupe.map(value => Card.ToNumber(value)).includes(Card.ToNumber(card)))
             cards_noDupe.push(card);
         });
         
@@ -609,9 +612,9 @@ export class Card{
         
         function GetNumber(index: number):number{
             if(index < cards_noDupe.length)
-            return Card.ToNumber(cards_noDupe[index].split("")[0]);
+            return Card.ToNumber(cards_noDupe[index]);
             else if (index == cards_noDupe.length){
-                let res = Card.ToNumber(cards_noDupe[0].split("")[0])
+                let res = Card.ToNumber(cards_noDupe[0])
                 if (res == 1)
                 res = 14
                 return res;
