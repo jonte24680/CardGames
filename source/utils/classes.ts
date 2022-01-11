@@ -92,7 +92,7 @@ export class Room {
 
             if (action == "Fold" && this.gameInfo.moves.fold){
 
-                this.players[PID].inGame == false;
+                this.players[PID].inGame = false;
                 const CID = this.players[PID].gameStat.GetCardIndex("Hand");
                 this.players[PID].gameStat.cards[CID].cards = [];
 
