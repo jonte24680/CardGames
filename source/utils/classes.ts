@@ -345,6 +345,7 @@ export class Player {
     username: string;
     id: string;
     inGame: boolean = false;
+    isOnline: boolean = true;
     money: number = 10000;
     gameStat: GameStat = new GameStat();
 

@@ -6,7 +6,7 @@ import express from "express";
 import socketIO from "socket.io";
 
 //const Data = require("./utils/data");
-import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame, PlayerAction, ResetGame} from "./utils/data";
+import {CreateRoom, JoinRoom, GetIndexRoomID, GetRoom, StartNewGame, PlayerAction, ResetGame, RoomDestory, PlayerDisconect} from "./utils/data";
 //import Data from "./utils/data"
 //const nåt = require(./Client/js/classes);
 import {Room, Player, GameInfo, JoiningRoom, GameName} from "./utils/classes";
@@ -24,10 +24,12 @@ const io: socketIO.Server = require("socket.io")(server);
 
 io.on("connection", (socket: socketIO.Socket) => {
     var ROOMID: number;
+    var isHost = false;
     
     //Host
     socket.on("new-room", (roomid:number) => {
         const room = CreateRoom(roomid, socket.id)
+        isHost = true;
 
         socket.join(room.roomID.toString());
         ROOMID = room.roomID;
@@ -60,6 +62,7 @@ io.on("connection", (socket: socketIO.Socket) => {
         } else {
             socket.join(room.roomID.toString());
             ROOMID = room.roomID;
+            isHost = false;
             
             UpdateClients(room);
             console.log(`player ${joinData.username} (id: ${socket.id}) has enterd room ${room.roomID}`)
@@ -69,6 +72,17 @@ io.on("connection", (socket: socketIO.Socket) => {
     socket.on("player-action", (actionData: any) => {
         PlayerAction(ROOMID, socket.id, actionData.action, actionData.extra)
         UpdateClientsID(ROOMID);
+    });
+
+    socket.on("disconnect", (reason: string) => {
+        if(isHost){
+            var room = RoomDestory(ROOMID)
+            socket.to(ROOMID.toString()).emit("players-update", null)
+        } else {
+            PlayerDisconect(ROOMID, socket.id);
+            UpdateClientsID(ROOMID);
+        }
+        console.log(`user left: ${socket.id}, ${reason}`)
     });
 
 });
