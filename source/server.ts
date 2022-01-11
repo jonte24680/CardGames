@@ -95,7 +95,7 @@ function UpdateClients(room: Room){
 
 const { argv } = require("process");
 
-var PORT:number = 8080;
+var PORT:number = Number(process.env.PORT) || 8080;
 
 if(process.argv.length > 2)
     PORT = +process.argv[2];
