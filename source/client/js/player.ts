@@ -50,7 +50,7 @@ socket.emit("join-room", joinData);
 
 socket.on("players-update", (Room: any) => {
     console.log(Room);
-    if(room == null)
+    if(Room == null)
         ReturnToMainPage(new Error("room dos not exxist"));
     room = Room;
     UpdateGui();

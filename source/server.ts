@@ -23,7 +23,7 @@ const io: socketIO.Server = require("socket.io")(server);
 // Run when a client connect
 
 io.on("connection", (socket: socketIO.Socket) => {
-    var ROOMID: number;
+    var ROOMID: number = Number.NaN;
     var isHost = false;
     
     //Host
@@ -56,9 +56,8 @@ io.on("connection", (socket: socketIO.Socket) => {
     socket.on("join-room", (joinData: any) => {
 
         const room = JoinRoom(joinData.roomID ,joinData.username, socket.id);
-        if( room == null)
-        {
-            socket.emit("players-update", {error: "Room doesn't exist"});
+        if( room == null){
+            socket.emit("players-update", null);
         } else {
             socket.join(room.roomID.toString());
             ROOMID = room.roomID;
@@ -84,7 +83,6 @@ io.on("connection", (socket: socketIO.Socket) => {
         }
         console.log(`user left: ${socket.id}, ${reason}`)
     });
-
 });
 
 function UpdateClientsID(roomID:number) {
