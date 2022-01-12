@@ -80,6 +80,7 @@ function CardPath(card: string): string{
 var newGameSelectElement = document.getElementById("new-game-select") as HTMLSelectElement;
 var newGameButtonElement = document.getElementById("new-game-button") as HTMLInputElement;
 var resetButtonElement = document.getElementById("reset-button") as HTMLInputElement;
+var copyLinkElement = document.getElementById("info-copy-link");
 
 newGameButtonElement.addEventListener("click", () => {
     if(room.gameInfo.turnPlayerId != "")
@@ -95,3 +96,8 @@ resetButtonElement.addEventListener("click", () => {
         socket.emit("host-reset");
 });
 
+copyLinkElement.addEventListener("click", () => {
+    var copyText = window.location.origin;
+    copyText += "?room=" + room.roomID;
+    navigator.clipboard.writeText(copyText);
+});
