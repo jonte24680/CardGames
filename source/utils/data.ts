@@ -96,8 +96,7 @@ export function RoomDestory(roomID: number) {
 export function PlayerDisconect(roomID: number, playerID: string) {
     const RID = GetIndexRoomID(roomID);
     if(isNaN(RID))
-        return Error("No room found with id");
-
+        return;
     rooms[RID].players[rooms[RID].PlayerIndex(playerID)].isOnline = false;
 }
 /*
