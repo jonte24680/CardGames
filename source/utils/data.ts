@@ -24,22 +24,22 @@ export function CreateRoom(roomID: number, hostID: string): Room {
 }
 
 export function JoinRoom(roomID: number, username: string | null, id: string): Room | null {
-    var i: number = GetIndexRoomID(roomID);
-    const player = rooms[i].players.find(player => player.username == username)
+    var RID: number = GetIndexRoomID(roomID);
+    if (Number.isNaN(RID) || username == null || username == "")
+        return null;
+
+    const player = rooms[RID].players.find(player => player.username == username)
 
     if(player != undefined){
         if (player.isOnline == false) {
             PlayerReconnect(id, player);
-            return rooms[i];
+            return rooms[RID];
         }
         return null;
     }
 
-    if (Number.isNaN(i) || username == null || username == "")
-        return null;
-
-    rooms[i].players.push(new Player(username, id));
-    return rooms[i];
+    rooms[RID].players.push(new Player(username, id));
+    return rooms[RID];
 }
 
 export function PlayerReconnect(id: string, player: Player) {
