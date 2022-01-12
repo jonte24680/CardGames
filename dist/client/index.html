@@ -24,4 +24,42 @@
             <p><a href="host.html">Host a game</a></p>
         </div>
     </div>
+    <script>
+        var room = getParameterByName("room");
+        if(room != null){
+            document.getElementById("room").value = room;
+        }
+
+        var error = getParameterByName("error");
+        if (error != null){
+            window.location.replace(window.location.origin + room != null ? `?room=${room}`: "")
+            alert(error);
+        }
+
+        LoadData()
+        
+        function LoadData(){
+            var username = window.localStorage.getItem("username");
+            if(username != null){
+                document.getElementById("username").value = username;
+            }
+        }
+
+        function SaveData(){
+            window.localStorage.setItem("username", document.getElementById("username").value);
+        }
+
+        window.addEventListener("beforeunload", () => {
+            SaveData();
+        });
+
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+    </script>
 </body>

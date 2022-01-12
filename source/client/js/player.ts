@@ -50,6 +50,8 @@ socket.emit("join-room", joinData);
 
 socket.on("players-update", (Room: any) => {
     console.log(Room);
+    if(room == null)
+        ReturnToMainPage(new Error("room dos not exxist"));
     room = Room;
     UpdateGui();
 });    
@@ -97,6 +99,13 @@ raiseButtonElement.addEventListener("click", () => {
 
 function SendAction(action: string, extra: any){
     socket.emit("player-action", {action: action, extra: extra})
+}
+
+function ReturnToMainPage(error?: Error) {
+    var URL = window.location.origin;
+    URL += "?room=" + getParameterByName("room"); 
+    URL += error == undefined? "" : `&error="${error.message}"`
+    window.location.href = URL;
 }
 
 
